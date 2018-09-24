@@ -6,6 +6,7 @@ from io import StringIO
 from collections import OrderedDict
 from datetime import datetime
 from datetime import timedelta
+import pytz
 
 from dateparser.utils.strptime import strptime
 
@@ -384,6 +385,9 @@ class _parser(object):
             dateobj = dateobj + delta
 
         if self.month and not self.year:
+            # Normalize offset-naive and offset-aware datetime objects for comparison.
+            self.now = self.now.replace(tzinfo=pytz.utc)
+            dateobj = dateobj.replace(tzinfo=pytz.utc)
             if self.now < dateobj:
                 if 'past' in self.settings.PREFER_DATES_FROM:
                     dateobj = dateobj.replace(year=dateobj.year - 1)
